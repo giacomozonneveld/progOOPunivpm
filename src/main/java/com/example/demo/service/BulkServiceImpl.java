@@ -1,13 +1,8 @@
 package com.example.demo.service;
 
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,25 +11,32 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
-
 import org.springframework.stereotype.Service;
+
 import com.example.demo.model.Bulk;
 
 @Service
 public class BulkServiceImpl implements BulkService{
 	
-	Bulk bObj = new Bulk();
 	Vector<Bulk> vett = new Vector<Bulk>();
 	boolean flagDownload=false;
 	boolean flagObjectGenerated=false;
 	
-	public void searchDataset() {
 	
+	private void searchDataset() {
+		File tmpDir = new File("file.tsv");
+		boolean exists = tmpDir.exists();
+		if(exists) {
+			return;
+		}
 		String url = "http://data.europa.eu/euodp/data/api/3/action/package_show?id=CLYAN2vR2Tu2Z1soIQZHQ";
 		try {
 			
@@ -79,6 +81,8 @@ public class BulkServiceImpl implements BulkService{
 	}
 
 	private void download(String url, String fileName) throws Exception {
+		
+		
 		HttpURLConnection openConnection = (HttpURLConnection) new URL(url).openConnection();
 		openConnection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
 		InputStream in = openConnection.getInputStream();
@@ -98,7 +102,7 @@ public class BulkServiceImpl implements BulkService{
 		 }
 	}
 
-	public void generateObjects() {
+	private void generateObjects() {
 		if(!flagDownload) {
 			searchDataset();
 		}
@@ -106,31 +110,55 @@ public class BulkServiceImpl implements BulkService{
 			BufferedReader reader= new BufferedReader(new FileReader ("file.tsv"));
 			String riga="";
 			riga=reader.readLine();
-			//String [] var = riga.split("\t"); //il garbage collection lo eliminerà perchè non viene più usato
 			String[] header=riga.split("\t"); //Legge la prima riga dove c'è l'header e lo uso sulla hashmap
-			
+			//int x=2;//variabile per debug righe
 			while((riga=reader.readLine())!=null) {
+				Bulk bObj = new Bulk();
 				String[] appoggio1;
 				Map<String, Float> years = new HashMap<>();
-				appoggio1=riga.split("\t");
-				String[] primaColonna=appoggio1[0].split(",");
-				bObj.setCrops(primaColonna[0]);
-				bObj.setStrucPro(primaColonna[1]);
-				bObj.setGeoTime(primaColonna[2]);
-				//i per header e j per appoggio1... inserisce automaticamente chiavi e valori
-				for(int i=1, j=i; i<header.length && j<appoggio1.length; i++) {
-					String key = header[i].trim();
-					appoggio1[j]=appoggio1[j].replaceAll(" ",""); //rimuove ogni spazio
-					if(!(appoggio1[j].contains(":")|| appoggio1[j].contains("u"))) {	//se non trova nessuno dei due caratteri
-						float value = Float.valueOf(appoggio1[j]);
+				appoggio1=riga.split("\t");	//inserisco in appoggio la riga spezzata da \t per separare le colonne
+				String[] primaColonna=appoggio1[0].split(","); //la prima colonna viene separata in 3 a causa della virgola
+				bObj.setCrops(primaColonna[0]);		//inserisco il primo valore contenuto all'interno della prima colonna della prima colonna
+				bObj.setStrucPro(primaColonna[1]); //uguale
+				bObj.setGeoTime(primaColonna[2]); //uguale
+				//Ok fino a qui
+				//i per header(chiavi) e per appoggio1(valori)... inserisce automaticamente chiavi e valori
+				//basta escludere la prima colonna del file quindi per appoggio1 i=1 e per header j=1. header e appoggio hanno stessa dimensione
+				//int colonna=1; variabile per debug colonne
+				for(int i=1 ; i<appoggio1.length ; i++) {
+					
+					String key = header[i].trim(); //rimuove gli spazi a destra e sinistra
+					
+					appoggio1[i]=appoggio1[i].replaceAll(" ",""); //rimuove ogni spazio interno
+					
+					if(!(appoggio1[i].contains(":")|| appoggio1[i].contains("u"))) {	
+						//se non trova nessuno dei due caratteri, e quindi il valore è gia numerico
+						float value = Float.valueOf(appoggio1[i]);//CAST DA STRING A FLOAT
 						years.put(key, value);
 					}
 					else {
-					years.put(header[i],  (float) 0);
+						float value=0;
+					years.put(key,  value);
 					}
+					//System.out.println("Riga "+x+ " \t Colonna "+colonna);	DEBUG
+					//colonna++;
 				}
-				bObj.setMap(years);
+				//System.out.println("Riga "+x);
+				//x++; DEBUG
+				bObj.setMap(years); //INSERISCE LA MAPPA NELL'ATTRIBUTO YEARS DELL'OGGETTO
+				
+				//STAMPA OGGETTO SERIALIZZATO
+/*				FileOutputStream out = new FileOutputStream("myfile.txt", true);
+				// Create the stream to the file you want to write too.
+				ObjectOutputStream objOut = new ObjectOutputStream(out);
+				// Use the FileOutputStream as the constructor argument for your object.
+
+				objOut.writeObject(bObj);
+				// Write your object to the output stream.
+				objOut.close();
+*/				
 				vett.add(bObj);
+				
 				
 			}
 			reader.close();
@@ -153,4 +181,7 @@ public class BulkServiceImpl implements BulkService{
 		return vett;
 	}
 	
+
+
+
 }
