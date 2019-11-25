@@ -113,10 +113,22 @@ public class BulkServiceImpl implements BulkService{
 			String[] header=riga.split("\t"); //Legge la prima riga dove c'è l'header e lo uso sulla hashmap
 			//int x=2;//variabile per debug righe
 			while((riga=reader.readLine())!=null) {
+				
 				Bulk bObj = new Bulk();
 				String[] appoggio1;
+				
+				int differenza=0;
+				
 				Map<String, Float> years = new HashMap<>();
 				appoggio1=riga.split("\t");	//inserisco in appoggio la riga spezzata da \t per separare le colonne
+				
+				
+				if(header.length!=appoggio1.length) { 				//valuta se una riga contiene valori fino ad una certa colonna 
+					differenza=header.length-appoggio1.length;		//e poi non ne ha più per il resto della riga
+				}													//se differenza!=0 si attiva l'if prima di inserire la hashmap nell'attributo
+																	//dell'oggetto
+				
+				
 				String[] primaColonna=appoggio1[0].split(","); //la prima colonna viene separata in 3 a causa della virgola
 				bObj.setCrops(primaColonna[0]);		//inserisco il primo valore contenuto all'interno della prima colonna della prima colonna
 				bObj.setStrucPro(primaColonna[1]); //uguale
@@ -145,6 +157,15 @@ public class BulkServiceImpl implements BulkService{
 				}
 				//System.out.println("Riga "+x);
 				//x++; DEBUG
+				
+				if(differenza!=0) {										//la riga ha valori fino ad una certa colonna e poi non ne ha più
+					for(int i=differenza; i<header.length; i++) {		//in questo modo inserisce 0 come valore per ogni colonna nulla
+						String key = header[i].trim();
+						float value=0;
+						years.put(key,value);
+					}
+				}
+				
 				bObj.setMap(years); //INSERISCE LA MAPPA NELL'ATTRIBUTO YEARS DELL'OGGETTO
 				
 				//STAMPA OGGETTO SERIALIZZATO
@@ -152,7 +173,6 @@ public class BulkServiceImpl implements BulkService{
 				// Create the stream to the file you want to write too.
 				ObjectOutputStream objOut = new ObjectOutputStream(out);
 				// Use the FileOutputStream as the constructor argument for your object.
-
 				objOut.writeObject(bObj);
 				// Write your object to the output stream.
 				objOut.close();
