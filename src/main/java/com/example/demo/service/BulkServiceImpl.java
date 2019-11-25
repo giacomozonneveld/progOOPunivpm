@@ -149,8 +149,9 @@ public class BulkServiceImpl implements BulkService{
 						years.put(key, value);
 					}
 					else {
-						float value=0;
-					years.put(key,  value);
+						//float value=0;
+						//years.put(key,  value);
+						years.put(key,  null);
 					}
 					//System.out.println("Riga "+x+ " \t Colonna "+colonna);	DEBUG
 					//colonna++;
@@ -161,8 +162,9 @@ public class BulkServiceImpl implements BulkService{
 				if(differenza!=0) {										//la riga ha valori fino ad una certa colonna e poi non ne ha più
 					for(int i=differenza; i<header.length; i++) {		//in questo modo inserisce 0 come valore per ogni colonna nulla
 						String key = header[i].trim();
-						float value=0;
-						years.put(key,value);
+						//float value=0;
+						//years.put(key,value);
+						years.put(key,null);
 					}
 				}
 				
@@ -234,6 +236,8 @@ public class BulkServiceImpl implements BulkService{
 		float []maxMin=getMaxMin(columnHeader);
 		results.put("Min", maxMin[0]);
 		results.put("Max", maxMin[1]);
+		float countValues= getCount(columnHeader);
+		results.put("Count", countValues);
 		return results;
 	}
 	
@@ -271,8 +275,10 @@ public class BulkServiceImpl implements BulkService{
 		for(Bulk obj :vett) {
 			Map<String, Float> mappa = new HashMap<>();
 			mappa= obj.getMap();
+			if(mappa.get(columnHeader)!=null) {
 			float value= mappa.get(columnHeader);
 			avg+=value;
+			}
 		}
 		avg=avg/vett.size();
 		return avg;
@@ -284,8 +290,10 @@ public class BulkServiceImpl implements BulkService{
 		for(Bulk obj : vett) {
 			Map<String, Float> mappa = new HashMap<>();
 			mappa= obj.getMap();
+			if(mappa.get(columnHeader)!=null) {
 			float value= mappa.get(columnHeader);
 			sum+=value;
+			}
 		}
 		return sum;
 	}
@@ -300,10 +308,12 @@ public class BulkServiceImpl implements BulkService{
 		for(Bulk obj : vett) {
 			Map<String, Float> mappa = new HashMap<>();
 			mappa= obj.getMap();
+			if(mappa.get(columnHeader)!=null) {
 			float value= mappa.get(columnHeader);
 		    differenza = value - media;
 		    sommatDiffQuadr += differenza * differenza;
 		    }
+			}
 		float variance = sommatDiffQuadr/vett.size();
 		devStd= (float) Math.sqrt(variance);
 		return devStd;
@@ -315,6 +325,7 @@ public class BulkServiceImpl implements BulkService{
 		for(Bulk obj :vett) {
 			Map<String, Float> mappa = new HashMap<>();
 			mappa= obj.getMap();
+			if(mappa.get(columnHeader)!=null) {
 			float value= mappa.get(columnHeader);
 			if(value>max) {
 				max=value;
@@ -322,10 +333,22 @@ public class BulkServiceImpl implements BulkService{
 			if(value<min) {
 				min=value;
 			}
+			}
 		}
 		float[] res= {min, max};
 		return res;
 	}
 	
+	private float getCount(String columnHeader) {
+		float conta=0;
+		for(Bulk o: vett) {
+			Map<String, Float> mappa = new HashMap<>();
+			mappa= o.getMap();
+			if(mappa.get(columnHeader)!=null) {
+			conta++;
+			}
+		}
+		return conta;
+	}
 	
 }
