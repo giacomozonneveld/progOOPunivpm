@@ -190,6 +190,7 @@ public class BulkServiceImpl implements BulkService{
 			}
 	}
 	
+	@Override
 	public Vector<Bulk> getBulks() {
 		if(!flagDownload) {
 			searchDataset();
@@ -200,8 +201,131 @@ public class BulkServiceImpl implements BulkService{
 		
 		return vett;
 	}
+
 	
+	
+	@Override
+	public Map<String, Float> getStatistics(String columnHeader) {
+		if(!flagDownload) {
+			searchDataset();
+		}
+		if(!flagObjectGenerated) {
+			generateObjects();
+		}
+		Bulk obj = new Bulk();
+		obj=vett.get(0);
+		columnHeader=columnHeader.trim();
+		if(obj.searchKeyInYears(columnHeader)) {
+			return numResults(columnHeader);
+		}
+		else {
+			return countUnique(columnHeader);
+		}
+	}
+	
+	private Map<String, Float> numResults(String columnHeader){
+		Map<String, Float> results = new HashMap<>();
+		float avg=getAvg(columnHeader);
+		results.put("Average", avg);
+		float sum= getSum(columnHeader);
+		results.put("Sum", sum);
+		float devStd = getDevStd(columnHeader, sum);
+		results.put("Standard Deviation", devStd);
+		float []maxMin=getMaxMin(columnHeader);
+		results.put("Min", maxMin[0]);
+		results.put("Max", maxMin[1]);
+		return results;
+	}
+	
+	private Map<String, Float> countUnique(String columnHeader){
+		Map<String, Float> res=new HashMap<>();
+		
+		if(columnHeader.equalsIgnoreCase("crops")) {
+		for(Bulk obj :vett) {
+			String value= obj.getCrops();
+			float num= (res.get(value)==null) ? 1 : res.get(value)+1; //se non trova il valore-> num=1, sennò num=frq+1
+			res.put(value, num);
+		}
+		}
+		if(columnHeader.equalsIgnoreCase("strucPro")) {
+			for(Bulk obj :vett) {
+				String value= obj.getStrucPro();
+				float num= (res.get(value)==null) ? 1 : res.get(value)+1; //se non trova il valore-> num=1, sennò num=frq+1
+				res.put(value, num);
+			}
+			}
+		if(columnHeader.equalsIgnoreCase("geoTime")) {
+			for(Bulk obj :vett) {
+			String value= obj.getGeoTime();
+			float num= (res.get(value)==null) ? 1 : res.get(value)+1; //se non trova il valore-> num=1, sennò num=frq+1
+			res.put(value, num);
+			}
+			
+		}
+		
+		return res;
+	}
+	
+	private float getAvg(String columnHeader) {
+		float avg=0;
+		for(Bulk obj :vett) {
+			Map<String, Float> mappa = new HashMap<>();
+			mappa= obj.getMap();
+			float value= mappa.get(columnHeader);
+			avg+=value;
+		}
+		avg=avg/vett.size();
+		return avg;
+	
+	}
 
+	private float getSum(String columnHeader) {
+		float sum=0;
+		for(Bulk obj : vett) {
+			Map<String, Float> mappa = new HashMap<>();
+			mappa= obj.getMap();
+			float value= mappa.get(columnHeader);
+			sum+=value;
+		}
+		return sum;
+	}
 
+	private float getDevStd(String columnHeader, float media) {
+		float devStd=0;
+		if(vett.size()==0) {
+	    	return devStd;
+	    }
+		float sommatDiffQuadr = 0;
+		float differenza=0;
+		for(Bulk obj : vett) {
+			Map<String, Float> mappa = new HashMap<>();
+			mappa= obj.getMap();
+			float value= mappa.get(columnHeader);
+		    differenza = value - media;
+		    sommatDiffQuadr += differenza * differenza;
+		    }
+		float variance = sommatDiffQuadr/vett.size();
+		devStd= (float) Math.sqrt(variance);
+		return devStd;
+	}
 
+	private float[] getMaxMin(String columnHeader) {
+		float max=0;
+		float min=0;
+		for(Bulk obj :vett) {
+			Map<String, Float> mappa = new HashMap<>();
+			mappa= obj.getMap();
+			float value= mappa.get(columnHeader);
+			if(value>max) {
+				max=value;
+			}
+			if(value<min) {
+				min=value;
+			}
+		}
+		float[] res= {min, max};
+		return res;
+	}
+	
+	
 }

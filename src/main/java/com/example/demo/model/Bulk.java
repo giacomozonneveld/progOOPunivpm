@@ -36,7 +36,12 @@ public void setMap(Map<String, Float> years) {
 	this.years= years;
 }
 
-
+public boolean searchKeyInYears(String key){
+	if(this.years.containsKey(key)) {
+	return true;
+	}
+	else return false;
+}
 
 
 }
