@@ -29,16 +29,23 @@ import com.example.demo.model.Bulk;
 public class BulkServiceImpl implements BulkService{
 	
 	Vector<Bulk> vett = new Vector<Bulk>();
-	
+	/**
+	 * Il costruttore scarica il data-set e lo rappresenta ad oggetti autonomamente, senza doverlo 
+	 * richiedere esplicitamente
+	 */
 	BulkServiceImpl(){
 		searchDataSet();
 		generateObjects();
 	}
 	
+	/**
+	 * Questo metodo entra nel sito, analizza gli oggetti JSON e, se trova il formato impostato (file-type/TSV)
+	 * effettua il download del data-set dall'url corrispondente.
+	 */
 	private void searchDataSet() {
-		File tmpDir = new File("file.tsv");
-		boolean exists = tmpDir.exists();
-		if(exists) {
+		File tmpDir = new File("file.tsv");	//viene verificato che il file non esista già per evitare conflitti
+		boolean exists = tmpDir.exists();	//se la condizione dell'if è true, esce dal metodo, sennò effettua
+		if(exists) {						//tutte le operazioni
 			return;
 		}
 		String url = "http://data.europa.eu/euodp/data/api/3/action/package_show?id=CLYAN2vR2Tu2Z1soIQZHQ";
@@ -82,7 +89,12 @@ public class BulkServiceImpl implements BulkService{
 		    					 e.printStackTrace();
 		    				 }
 	}
-
+/**
+ * Metodo che effettua il download del data-set
+ * @param url	link alla pagina contenente il data-set ottenuto nel metodo searchDataSet()
+ * @param fileName	nome del file che verrà creato, default "file.tsv
+ * @throws Exception IOException
+ */
 	private void download(String url, String fileName) throws Exception {
 
 		HttpURLConnection openConnection = (HttpURLConnection) new URL(url).openConnection();
@@ -101,7 +113,10 @@ public class BulkServiceImpl implements BulkService{
 		   in.close();
 		 }
 	}
-
+	
+	/**
+	 * Questo metodo rappresenta il data-set ad oggetti
+	 */
 	private void generateObjects() {
 		try {
 			BufferedReader reader= new BufferedReader(new FileReader ("file.tsv"));
@@ -166,26 +181,39 @@ public class BulkServiceImpl implements BulkService{
 			}
 	}
 	
+	
+	/**
+	 * Questo metodo viene chiamato dal controller per restituire i dati.
+	 * Questi sono stati salvati all'interno della struttura dati Vector nel metodo generateObjects()
+	 */
 	@Override
 	public Vector<Bulk> getBulks() {
 		
 		return vett;
 	}
-
-	
 	
 	@Override
+	/**
+	 * Questo metodo implementa la funzione delle statistiche
+	 */
 	public Map<String, Float> getStatistics(String columnHeader) {
-		Bulk obj = new Bulk();
-		obj=vett.get(0);
+		Bulk obj = new Bulk();	//questo oggetto va creato per poter effettuare la ricerca della chiave su una mappa riempita, 
+		obj=vett.get(0);		//altrimenti non avrebbe alcuna chiave o valore
 		columnHeader=columnHeader.trim();
-		if(obj.searchKeyInYears(columnHeader)) {
-			return numResults(columnHeader);
+		if(obj.searchKeyInYears(columnHeader)) {	//searchKeyInYears ritorna true/false, metodo implementato in Bulk.java
+			return numResults(columnHeader);		//e usato per valutare se le statistiche vanno effettuate su numeri o stringhe
 		}
 		else {
-			return countUnique(columnHeader);
+			return countUnique(columnHeader);	//chiamata metodo che implementa statistiche su stringhe
 		}
 	}
+	
+	/**
+	 * Metodo che effettua le statistiche sui valori correlati al nome della colonna, andando a scorrere tutti i valori con 
+	 * chiave columnHeader di tutte le mappe di tutti gli oggetti
+	 * @param columnHeader nome della colonna
+	 * @return mappa contenente tutti i risultati della statistiche mappa<tipo statistica, risultato>
+	 */
 
 	private Map<String, Float> numResults(String columnHeader){
 		Map<String, Float> results = new HashMap<>();
@@ -202,6 +230,12 @@ public class BulkServiceImpl implements BulkService{
 		results.put("Count", countValues);
 		return results;
 	}
+	
+	/**
+	 * Metodo che effettua la statistica su valori di tipo stringa. Conta gli elementi unici
+	 * @param columnHeader	nome colonna
+	 * @return mappa con risultati mappa<valore stringa, occorrenze>
+	 */
 	
 	private Map<String, Float> countUnique(String columnHeader){
 		Map<String, Float> res=new HashMap<>();
@@ -232,6 +266,12 @@ public class BulkServiceImpl implements BulkService{
 		}
 		return null;
 	}
+	/**
+	 * Metodo che calcola la media
+	 * @param columnHeader nome colonna
+	 * @return valore calcolato
+	 */
+	
 	
 	private float getAvg(String columnHeader) {
 		float avg=0;
@@ -247,6 +287,11 @@ public class BulkServiceImpl implements BulkService{
 		return avg;
 	
 	}
+	/**
+	 * Metodo che calcola la somma dei valori
+	 * @param columnHeader nome colonna
+	 * @return valore calcolato
+	 */
 
 	private float getSum(String columnHeader) {
 		float sum=0;
@@ -260,6 +305,12 @@ public class BulkServiceImpl implements BulkService{
 		}
 		return sum;
 	}
+	/**
+	 * Metodo che calcola la Deviazione Standard
+	 * @param columnHeader	nome colonna
+	 * @param avg	valore ottenuto da metodo getAvg(columnHeader)
+	 * @return	valore calcolato
+	 */
 
 	private float getDevStd(String columnHeader, float avg) {
 		float devStd=0;
@@ -278,6 +329,11 @@ public class BulkServiceImpl implements BulkService{
 		devStd= (float) Math.sqrt(variance);
 		return devStd;
 	}
+	/**
+	 * Metodo che calcola massimo e minimo
+	 * @param columnHeader	nome della colonna
+	 * @return array con valori minimo in posizione 0 e massimo in posizione 1
+	 */
 
 	private float[] getMaxMin(String columnHeader) {
 		float max=0;
@@ -298,18 +354,26 @@ public class BulkServiceImpl implements BulkService{
 		float[] res= {min, max};
 		return res;
 	}
+	/**
+	 * Metodo che conta il numero di valori
+	 * @param columnHeader nome colonna
+	 * @return valore calcolato
+	 */
 	
 	private float getCount(String columnHeader) {
 		float conta=0;
 		for(Bulk o: vett) {
 			Map<String, Float> mappa = new HashMap<>();
 			mappa= o.getMap();
-			if(mappa.get(columnHeader)!=null) {
-			conta++;
+			if(mappa.get(columnHeader)!=null) {	//se il data-set ha valori non numerici, questi vengono sostituiti con null,
+			conta++;							//quindi per effettuare il calcolo, questi vanno esclusi
 			}
 		}
 		return conta;
 	}
+	/**
+	 * Metodo che produce i metadati
+	 */
 
 	
 	
@@ -318,20 +382,20 @@ public class BulkServiceImpl implements BulkService{
 		Map<String, String> metadata = new HashMap<>();
 		Bulk obj=vett.get(0);
 		Class objVar=obj.getClass();
-		Field[] metadati = objVar.getDeclaredFields();
+		Field[] metadati = objVar.getDeclaredFields();	//i metadati vengono inseriti nella mappa metadata
 		for(Field f : metadati) {
 			metadata.put(f.getName(), f.getType().toString());
 		}
-		metadata.remove("years");
+		metadata.remove("years");		//viene rimosso, perchè non esprime il tipo di dato dei valori legati alle chiavi
 		Map<String, Float> mappoggio=new HashMap<>();
-		mappoggio=obj.getMap();
+		mappoggio=obj.getMap();		//per conoscere il contenuto della mappa, questa deve essere riempita, e quindi bisogna estrarla da un oggetto
 		
 		 try {
 	            ParameterizedType pt = (ParameterizedType)Bulk.class.getDeclaredField("years").getGenericType();
 	            for(Type type : pt.getActualTypeArguments()) {
 	            	for(Map.Entry<String, Float> entry : mappoggio.entrySet()) {
-	            		metadata.put(entry.getKey(), type.toString() );
-	            		}
+	            		metadata.put(entry.getKey(), type.toString() );	//come chiavi ci saranno i nomi delle chiavi di mappoggio, 
+	            		}												//come valori il tipo di dato dei valori di mappoggio
 	            	}
 	            }catch(NoSuchFieldException e) {
 	            	e.printStackTrace();
