@@ -10,4 +10,6 @@ public interface BulkService {
 	public abstract Vector <Bulk> getBulks();
 	
 	public abstract Map<String, Float> getStatistics(String columnHeader);
+	
+	public abstract Map<String, String> getMetadata() throws NoSuchFieldException;
 }

@@ -1,9 +1,8 @@
 package com.example.demo.model;
 
-//import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-//implements Serializable
+
 public class Bulk {
 private String crops;
 private String strucPro;
