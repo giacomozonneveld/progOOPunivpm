@@ -147,7 +147,7 @@ Valgono le stesse considerazioni del metodo **getAvg(String columnHeader)**.
 + ##### Metodo getDevStd(String columnHeader, float avg)
 In questo metodo, si effettua la deviazione standard calcolata tramite la seguente formula.
 
-[![alt text](stddev.PNG)]
+![alt text](stddev.PNG)
 
 Il parametro `float media` viene fornito tramite il metodo **getAvg(String columnHeader)** già chiamato in **numResults(String columnHeader)** poco prima della chiamata di questo metodo.
 ```java
