@@ -3,6 +3,7 @@
 1. Analisi del data-set ed implementazione funzionalità
     1.1. Classe Bulk.java
     1.2 Classe BulkServiceImpl.java
+    + Metodo welcome()
     + Metodo searchDataSet()
     + Metodo generateObjects()
     + Metodo getBulks()
@@ -36,6 +37,8 @@ Come *variabili globali* sono presenti:
 
 La variabile **vett** è un vettore di oggetti Bulk, all'interno di questa saranno presenti tutte le occorrenze del data-set.
 Le variabili booleane, **flagDownload** e **flagObjectGenerated** ,inizializzate a **false**, verranno utilizzate per verificare che, prima di qualsiasi operazione, sia stato scaricato il data-set e che questo sia stato rappresentato ad oggetti. In questo modo eviteremo errori di tipo **Error 500**, nel caso in cui le suddette operazioni non siano state fatte in partenza.
+#### Metodo welcome()
+Questo metodo, con modificatore public, mostra un messaggio di benvenuto dove vengono indicate: operazioni, path, metodo di richiesta
 #### Metodo searchDataSet()
 Questo metodo, con modificatore `private`, viene chiamato dal metodo `getBulks()`. 
 Prevede la connessione con l'url http://data.europa.eu/euodp/data/api/3/action/package_show?id=CLYAN2vR2Tu2Z1soIQZHQ, la lettura bufferizzata del documento JSON per considerare gli *url* e i *formati* presenti tramite il **parsing JSON**  e il download del data-set. 
@@ -240,6 +243,9 @@ try {
 	}
 ```
 ## 2. Esempi di test per verifica funzionalità
++ ##### Messaggio di benvenuto
+
+  path: `localhost:8080/` `[GET]`
 * ##### Richiesta dei dati in formato JSON 
   
   path: `localhost:8080/bulks` `[GET]`
