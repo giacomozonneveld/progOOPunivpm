@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 
@@ -16,4 +17,5 @@ public interface BulkService {
 	public abstract Map<String, Float> getStatistics(String columnHeader);
 	
 	public abstract Map<String, String> getMetadata() throws NoSuchFieldException;
+	public abstract ArrayList<String> welcome();
 }

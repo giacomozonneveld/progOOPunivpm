@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,10 +15,19 @@ import com.example.demo.service.BulkService;
 
 
 @RestController
-public class BulkController {
+@ControllerAdvice
+public class BulkController{
 	
 	@Autowired
 	BulkService bulkService;
+	/**
+	 * Metodo che mostra tutte le operazioni possibili
+	 * @return
+	 */
+	@RequestMapping(value="/", method=RequestMethod.GET)
+	public ResponseEntity<Object> welcome(){
+		return new ResponseEntity<>(bulkService.welcome(), HttpStatus.OK);	
+	}
 	
 	/**
 	 * Metodo che restituisce i dati
@@ -53,6 +63,7 @@ public class BulkController {
 		AttribNotFoundException(String columnHeader){
 	}
 	}
+	
 
 	/**
 	 * Metodo che restituisce i metadati

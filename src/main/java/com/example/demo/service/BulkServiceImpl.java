@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -29,6 +30,7 @@ import com.example.demo.model.Bulk;
 public class BulkServiceImpl implements BulkService{
 	
 	Vector<Bulk> vett = new Vector<Bulk>();
+	
 	/**
 	 * Il costruttore scarica il data-set e lo rappresenta ad oggetti autonomamente, senza doverlo 
 	 * richiedere esplicitamente
@@ -37,6 +39,21 @@ public class BulkServiceImpl implements BulkService{
 		searchDataSet();
 		generateObjects();
 	}
+	
+	
+	/**
+	 * Questo metodo implementa il messaggio di benvenuto dove vengono mostrate tutte le operazioni che possono essere compiute
+	 */
+	@Override
+	public ArrayList<String> welcome(){
+		ArrayList<String> msg= new ArrayList<>();
+		msg.add("Ecco le operazioni che puoi compiere");
+		msg.add("Per OTTENERE I DATI inserire:                  path: localhost:8080/bulks;                   Metodo richiesta: [GET]");
+		msg.add("Per EFFETTUARE LE STATISTICHE inserire:        path localhost:8080/bulks/nome_attributo;     Metodo richiesta: [GET]");
+		msg.add("Per OTTENERE I METADATI inserire:              path localhost:8080/bulks/metadata;           Metodo richiesta: [GET]");
+		return msg;
+	}
+	
 	
 	/**
 	 * Questo metodo entra nel sito, analizza gli oggetti JSON e, se trova il formato impostato (file-type/TSV)
