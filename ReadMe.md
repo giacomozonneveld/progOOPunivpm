@@ -3,12 +3,12 @@
 1. Analisi del data-set ed implementazione funzionalità
     1.1. Classe Bulk.java
     1.2 Classe BulkServiceImpl.java
-    + Metodo welcome()
-    + Metodo searchDataSet()
-    + Metodo generateObjects()
-    + Metodo getBulks()
-    + Metodo getStatistics(String columnHeader)
-    + Metodo getMetadata()
+   	 + Metodo welcome()
+   	 + Metodo searchDataSet()
+   	 + Metodo generateObjects()
+   	 + Metodo getBulks()
+   	 + Metodo getStatistics(String columnHeader)
+   	 + Metodo getMetadata()
 2. Esempi di test per verifica funzionalità
     + Richiesta dei dati
     + Richiesta dei metadati
